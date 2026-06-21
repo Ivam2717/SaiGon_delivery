@@ -1,0 +1,56 @@
+﻿@model Saigon_delivery.Models.ViewModels.LoginViewModel
+@{
+    ViewData["Title"] = "Đăng nhập";
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Đăng nhập — Saigon Delivery</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+</head>
+<body class="bg-light">
+    <div class="container d-flex justify-content-center align-items-center min-vh-100">
+        <div class="card shadow-sm p-4" style="width:100%; max-width:420px;">
+
+            <h4 class="text-center mb-1 fw-semibold">Saigon Delivery</h4>
+            <p class="text-center text-muted mb-4" style="font-size:14px">Đăng nhập để tiếp tục</p>
+
+            @if (TempData["Success"] != null)
+            {
+                <div class="alert alert-success py-2">@TempData["Success"]</div>
+            }
+
+            <form asp-action="Login" method="post">
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-2" style="font-size:14px"></div>
+
+                <div class="mb-3">
+                    <label asp-for="Email" class="form-label">Email</label>
+                    <input asp-for="Email" class="form-control" placeholder="example@email.com" />
+                    <span asp-validation-for="Email" class="text-danger" style="font-size:13px"></span>
+                </div>
+
+                <div class="mb-4">
+                    <label asp-for="Password" class="form-label">Mật khẩu</label>
+                    <input asp-for="Password" class="form-control" placeholder="••••••••" />
+                    <span asp-validation-for="Password" class="text-danger" style="font-size:13px"></span>
+                </div>
+
+                <button type="submit" class="btn btn-primary w-100">Đăng nhập</button>
+            </form>
+
+            <hr class="my-3" />
+            <p class="text-center mb-0" style="font-size:14px">
+                Chưa có tài khoản?
+                <a asp-action="Register" class="fw-semibold">Đăng ký ngay</a>
+            </p>
+        </div>
+    </div>
+
+    @section Scripts {
+        <partial name="_ValidationScriptsPartial" />
+    }
+</body>
+</html>
