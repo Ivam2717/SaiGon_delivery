@@ -25,6 +25,8 @@ public partial class Order
 
     public DateTime CreatedAt { get; set; }
 
+    public string PickupAddress { get; set; } = null!;
+
     public virtual User Customer { get; set; } = null!;
 
     public virtual User? Shipper { get; set; }

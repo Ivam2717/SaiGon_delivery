@@ -1,0 +1,105 @@
+﻿@model Saigon_delivery.Models.Order
+@{
+    ViewData["Title"] = "Đơn #" + Model.Id;
+    var statusOrder = new[] { "Pending", "Shipping", "Completed" };
+    var currentIdx = Array.IndexOf(statusOrder, Model.Status);
+    var steps = new[]
+    {
+        ("Pending",   "Chờ nhận",   "Đơn hàng đã được tạo, đang chờ shipper"),
+        ("Shipping",  "Đang giao",  "Shipper đang trên đường giao hàng"),
+        ("Completed", "Hoàn thành", "Đơn hàng đã giao thành công"),
+    };
+}
+<a asp-action="Index"
+   style="font-size:11px; letter-spacing:0.06em; text-transform:uppercase; text-decoration:underline; color:#888">
+    ← Quay lại
+</a>
+
+<div class="order-detail-grid"  style="display:grid; grid-template-columns:1fr 320px; gap:2.5rem; margin-top:1.5rem; align-items:start">
+
+    <div>
+        <h1 class="rl-page-title">Đơn hàng #@Model.Id</h1>
+        <p class="rl-page-sub">
+            Đặt lúc @Model.CreatedAt.ToLocalTime().ToString("HH:mm — dd/MM/yyyy")
+        </p>
+
+        <div class="rl-card">
+            <div class="rl-card-header">Thông tin vận chuyển</div>
+            <div class="rl-card-body">
+                <div class="rl-detail-row">
+                    <span class="rl-detail-label">Người nhận</span>
+                    <span class="rl-detail-value">@Model.ReceiverName</span>
+                </div>
+                <div class="rl-detail-row">
+                    <span class="rl-detail-label">Điện thoại</span>
+                    <span class="rl-detail-value">@Model.ReceiverPhone</span>
+                </div>
+                <div class="rl-detail-row">
+                    <span class="rl-detail-label">Lấy hàng tại</span>
+                    <span class="rl-detail-value">@Model.PickupAddress</span>
+                </div>
+                <div class="rl-detail-row">
+                    <span class="rl-detail-label">Giao đến</span>
+                    <span class="rl-detail-value">@Model.DeliveryAddress</span>
+                </div>
+                <div class="rl-detail-row">
+                    <span class="rl-detail-label">Khoảng cách</span>
+                    <span class="rl-detail-value">@Model.Distance km</span>
+                </div>
+                <div class="rl-detail-row">
+                    <span class="rl-detail-label">Phí ship</span>
+                    <span class="rl-detail-value" style="font-weight:500; font-size:15px">
+                        @Model.ShipFee.ToString("N0")đ
+                    </span>
+                </div>
+                <div class="rl-detail-row">
+                    <span class="rl-detail-label">Shipper</span>
+                    <span class="rl-detail-value">
+                        @if (Model.Shipper != null)
+                        {
+                            @Model.Shipper.FullName <text> — </text> @Model.Shipper.Phone
+                        }
+                        else
+                        {
+
+                            <span style="color:#aaa; font-style:italic">Chưa gán shipper</span>
+                        }
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div>
+        <div class="rl-card">
+            <div class="rl-card-header">Trạng thái đơn hàng</div>
+            <div class="rl-card-body">
+                <ul class="rl-timeline">
+                    @foreach (var (status, label, desc) in steps)
+                    {
+                        var idx = Array.IndexOf(statusOrder, status);
+                        var dotClass = idx < currentIdx ? "done" : (idx == currentIdx ? "current" : "");
+                        var textColor = idx <= currentIdx ? "#1a1a1a" : "#bbb";
+                        <li>
+                            <div class="rl-timeline-dot @dotClass"></div>
+                            <div>
+                                <div class="rl-timeline-label" style="color:@textColor">@label</div>
+                                <div class="rl-timeline-desc">@desc</div>
+                            </div>
+                        </li>
+                    }
+                </ul>
+
+                @if (Model.Status == "Completed")
+                {
+                    <div style="margin-top:1rem; padding-top:1rem; border-top:1px solid #f0f0f0">
+                        <a asp-controller="Rating" asp-action="Create" asp-route-orderId="@Model.Id"
+                           class="rl-btn" style="font-size:11px">
+                            Đánh giá shipper
+                        </a>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>

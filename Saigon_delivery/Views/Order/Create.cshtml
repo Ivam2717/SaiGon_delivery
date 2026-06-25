@@ -1,0 +1,81 @@
+﻿@model Saigon_delivery.Models.ViewModels.OrderViewModel
+@{
+    ViewData["Title"] = "Đặt hàng";
+}
+
+<div style="max-width:560px">
+    <h1 class="rl-page-title">Tạo đơn giao hàng</h1>
+    <p class="rl-page-sub">Điền thông tin bên dưới để đặt đơn</p>
+
+    <form asp-action="Create" method="post">
+        <div asp-validation-summary="ModelOnly" class="rl-field-error" style="margin-bottom:1rem"></div>
+
+        <p style="font-size:11px; letter-spacing:0.08em; text-transform:uppercase; color:#aaa; margin-bottom:0.75rem">
+            Thông tin người nhận
+        </p>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem">
+            <div class="rl-field">
+                <label asp-for="ReceiverName" class="rl-label">Tên người nhận</label>
+                <input asp-for="ReceiverName" class="rl-input" placeholder="Nguyễn Văn A" />
+                <span asp-validation-for="ReceiverName" class="rl-field-error"></span>
+            </div>
+            <div class="rl-field">
+                <label asp-for="ReceiverPhone" class="rl-label">Số điện thoại</label>
+                <input asp-for="ReceiverPhone" class="rl-input" placeholder="09xxxxxxxx" />
+                <span asp-validation-for="ReceiverPhone" class="rl-field-error"></span>
+            </div>
+        </div>
+
+        <hr class="rl-divider" />
+        <p style="font-size:11px; letter-spacing:0.08em; text-transform:uppercase; color:#aaa; margin-bottom:0.75rem">
+            Thông tin vận chuyển
+        </p>
+
+        <div class="rl-field">
+            <label asp-for="PickupAddress" class="rl-label">Địa chỉ lấy hàng</label>
+            <input asp-for="PickupAddress" class="rl-input" placeholder="Số nhà, tên đường, quận..." />
+            <span asp-validation-for="PickupAddress" class="rl-field-error"></span>
+        </div>
+
+        <div class="rl-field">
+            <label asp-for="DeliveryAddress" class="rl-label">Địa chỉ giao hàng</label>
+            <input asp-for="DeliveryAddress" class="rl-input" placeholder="Số nhà, tên đường, quận..." />
+            <span asp-validation-for="DeliveryAddress" class="rl-field-error"></span>
+        </div>
+
+        <div class="rl-field" style="max-width:200px">
+            <label asp-for="Distance" class="rl-label">Khoảng cách ước tính (km)</label>
+            <input asp-for="Distance" class="rl-input" id="distanceInput"
+                   placeholder="0.0" step="0.1" min="0.1" max="50" />
+            <span asp-validation-for="Distance" class="rl-field-error"></span>
+        </div>
+
+        <div class="rl-fee-box" id="feeBox" style="display:none; max-width:280px">
+            Phí ship ước tính: <strong id="feeDisplay">--</strong>
+        </div>
+
+        <div style="margin-top:2rem">
+            <button type="submit" class="rl-btn" style="max-width:220px">Xác nhận đặt hàng</button>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        const input = document.getElementById('distanceInput');
+        const feeBox = document.getElementById('feeBox');
+        const feeDisplay = document.getElementById('feeDisplay');
+        input.addEventListener('input', function () {
+            const val = parseFloat(this.value);
+            if (!val || val <= 0) { feeBox.style.display = 'none'; return; }
+            fetch(`/Order/GetShipFee?distance=${val}`)
+                .then(r => r.json())
+                .then(data => {
+                    feeDisplay.textContent = data.feeFormatted;
+                    feeBox.style.display = 'block';
+                });
+        });
+    </script>
+}

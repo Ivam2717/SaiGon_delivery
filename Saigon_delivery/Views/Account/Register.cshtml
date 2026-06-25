@@ -9,55 +9,62 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Đăng ký — Saigon Delivery</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="~/css/site-custom.css" />
 </head>
-<body class="bg-light">
-    <div class="container d-flex justify-content-center align-items-center min-vh-100">
-        <div class="card shadow-sm p-4" style="width:100%; max-width:460px;">
+<body>
+    <nav class="rl-nav">
+        <div class="rl-nav-top">
+            <a class="rl-brand" href="#">Saigon Delivery</a>
+        </div>
+    </nav>
 
-            <h4 class="text-center mb-1 fw-semibold">Tạo tài khoản</h4>
-            <p class="text-center text-muted mb-4" style="font-size:14px">Saigon Delivery</p>
+    <div class="rl-auth-wrap" style="justify-content:center">
+        <div class="rl-auth-form">
+            <h1 class="rl-auth-title">Tạo tài khoản</h1>
+            <p class="rl-auth-sub">Điền thông tin để bắt đầu</p>
 
             <form asp-action="Register" method="post">
-                <div asp-validation-summary="ModelOnly" class="text-danger mb-2" style="font-size:14px"></div>
+                <div asp-validation-summary="ModelOnly" class="rl-field-error" style="margin-bottom:1rem"></div>
 
-                <div class="mb-3">
-                    <label asp-for="FullName" class="form-label">Họ và tên</label>
-                    <input asp-for="FullName" class="form-control" placeholder="Nguyễn Văn A" />
-                    <span asp-validation-for="FullName" class="text-danger" style="font-size:13px"></span>
+                <div class="rl-field">
+                    <label asp-for="FullName" class="rl-label">Họ và tên</label>
+                    <input asp-for="FullName" class="rl-input" placeholder="Nguyễn Văn A" />
+                    <span asp-validation-for="FullName" class="rl-field-error"></span>
                 </div>
 
-                <div class="mb-3">
-                    <label asp-for="Email" class="form-label">Email</label>
-                    <input asp-for="Email" class="form-control" placeholder="example@email.com" />
-                    <span asp-validation-for="Email" class="text-danger" style="font-size:13px"></span>
+                <div class="rl-field">
+                    <label asp-for="Email" class="rl-label">Email</label>
+                    <input asp-for="Email" class="rl-input" placeholder="example@email.com" />
+                    <span asp-validation-for="Email" class="rl-field-error"></span>
                 </div>
 
-                <div class="mb-3">
-                    <label asp-for="Phone" class="form-label">Số điện thoại</label>
-                    <input asp-for="Phone" class="form-control" placeholder="09xxxxxxxx" />
-                    <span asp-validation-for="Phone" class="text-danger" style="font-size:13px"></span>
+                <div class="rl-field">
+                    <label asp-for="Phone" class="rl-label">Số điện thoại</label>
+                    <input asp-for="Phone" class="rl-input" placeholder="09xxxxxxxx" />
+                    <span asp-validation-for="Phone" class="rl-field-error"></span>
                 </div>
 
-                <div class="mb-3">
-                    <label asp-for="Password" class="form-label">Mật khẩu</label>
-                    <input asp-for="Password" class="form-control" placeholder="Tối thiểu 6 ký tự" />
-                    <span asp-validation-for="Password" class="text-danger" style="font-size:13px"></span>
+                <div class="rl-field">
+                    <label asp-for="Password" class="rl-label">Mật khẩu</label>
+                    <input asp-for="Password" class="rl-input" placeholder="Tối thiểu 6 ký tự" />
+                    <span asp-validation-for="Password" class="rl-field-error"></span>
                 </div>
 
-                <div class="mb-4">
-                    <label asp-for="ConfirmPassword" class="form-label">Xác nhận mật khẩu</label>
-                    <input asp-for="ConfirmPassword" class="form-control" placeholder="Nhập lại mật khẩu" />
-                    <span asp-validation-for="ConfirmPassword" class="text-danger" style="font-size:13px"></span>
+                <div class="rl-field">
+                    <label asp-for="ConfirmPassword" class="rl-label">Xác nhận mật khẩu</label>
+                    <input asp-for="ConfirmPassword" class="rl-input" placeholder="Nhập lại mật khẩu" />
+                    <span asp-validation-for="ConfirmPassword" class="rl-field-error"></span>
                 </div>
 
-                <button type="submit" class="btn btn-primary w-100">Đăng ký</button>
+                <div style="margin-top:1.5rem">
+                    <button type="submit" class="rl-btn">Tạo tài khoản</button>
+                </div>
             </form>
 
-            <hr class="my-3" />
-            <p class="text-center mb-0" style="font-size:14px">
+            <hr class="rl-divider" />
+            <p style="font-size:12px; color:#666; text-align:center">
                 Đã có tài khoản?
-                <a asp-action="Login" class="fw-semibold">Đăng nhập</a>
+                <a asp-action="Login" style="color:#1a1a1a; text-decoration:underline">Đăng nhập</a>
             </p>
         </div>
     </div>

@@ -1,0 +1,67 @@
+﻿@model IEnumerable<Saigon_delivery.Models.Order>
+@{
+    ViewData["Title"] = "Đơn hàng của tôi";
+}
+
+<div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:1.5rem">
+    <div>
+        <h1 class="rl-page-title" style="margin-bottom:0">Đơn hàng của tôi</h1>
+    </div>
+    <a asp-action="Create" class="rl-btn rl-btn-outline rl-btn-sm">+ Đặt hàng mới</a>
+</div>
+
+@if (!Model.Any())
+{
+    <div class="rl-empty">
+        <p class="rl-empty-title">Chưa có đơn hàng nào</p>
+        <p class="rl-empty-sub">Đơn hàng của bạn sẽ xuất hiện ở đây</p>
+        <a asp-action="Create" class="rl-btn" style="max-width:180px; margin:0 auto">Đặt hàng ngay</a>
+    </div>
+}
+else
+{
+    <div style="overflow-x:auto">
+        <table class="rl-table">
+            <thead>
+                <tr>
+                    <th>Mã đơn</th>
+                    <th>Người nhận</th>
+                    <th>Địa chỉ giao</th>
+                    <th>Phí ship</th>
+                    <th>Trạng thái</th>
+                    <th>Ngày đặt</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var o in Model)
+                {
+                    var (badgeClass, label) = o.Status switch
+                    {
+                        "Pending" => ("rl-badge-pending", "Chờ nhận"),
+                        "Shipping" => ("rl-badge-shipping", "Đang giao"),
+                        "Completed" => ("rl-badge-done", "Hoàn thành"),
+                        _ => ("rl-badge-pending", o.Status)
+                    };
+                    <tr>
+                        <td style="color:#aaa">#@o.Id</td>
+                        <td>
+                            <div>@o.ReceiverName</div>
+                            <div style="color:#aaa; font-size:11.5px">@o.ReceiverPhone</div>
+                        </td>
+                        <td style="color:#555; max-width:200px">@o.DeliveryAddress</td>
+                        <td style="font-weight:500">@o.ShipFee.ToString("N0")đ</td>
+                        <td><span class="rl-badge @badgeClass">@label</span></td>
+                        <td style="color:#aaa">@o.CreatedAt.ToLocalTime().ToString("dd/MM/yy HH:mm")</td>
+                        <td>
+                            <a asp-action="Detail" asp-route-id="@o.Id"
+                               style="font-size:11px; letter-spacing:0.04em; text-transform:uppercase; text-decoration:underline">
+                                Chi tiết
+                            </a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}

@@ -22,7 +22,8 @@ public partial class SaigonDeliveryContext : DbContext
 
     public virtual DbSet<User> Users { get; set; }
 
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) => optionsBuilder.UseSqlServer("Server=DESKTOP-L1R9Q1N\\SQLEXPRESS;Database=SaigonDeliveryDB;Trusted_Connection=True;TrustServerCertificate=True;");
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        => optionsBuilder.UseSqlServer("Server=DESKTOP-L1R9Q1N\\SQLEXPRESS;Database=SaigonDeliveryDB;Trusted_Connection=True;TrustServerCertificate=True;");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -33,6 +34,9 @@ public partial class SaigonDeliveryContext : DbContext
             entity.Property(e => e.CreatedAt).HasDefaultValueSql("(sysutcdatetime())");
             entity.Property(e => e.DeliveryAddress).HasMaxLength(255);
             entity.Property(e => e.Distance).HasColumnType("decimal(6, 2)");
+            entity.Property(e => e.PickupAddress)
+                .HasMaxLength(255)
+                .HasDefaultValue("Không rõ");
             entity.Property(e => e.ReceiverName).HasMaxLength(100);
             entity.Property(e => e.ReceiverPhone).HasMaxLength(20);
             entity.Property(e => e.ShipFee).HasColumnType("decimal(10, 2)");
