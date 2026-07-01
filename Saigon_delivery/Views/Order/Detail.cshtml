@@ -92,11 +92,21 @@
 
                 @if (Model.Status == "Completed")
                 {
+                    var hasRating = Model.ShipperRating != null;
                     <div style="margin-top:1rem; padding-top:1rem; border-top:1px solid #f0f0f0">
-                        <a asp-controller="Rating" asp-action="Create" asp-route-orderId="@Model.Id"
-                           class="rl-btn" style="font-size:11px">
-                            Đánh giá shipper
-                        </a>
+                        @if (!hasRating)
+                        {
+                            <a asp-controller="Rating" asp-action="Create" asp-route-orderId="@Model.Id"
+                               class="rl-btn" style="font-size:11px">
+                                Đánh giá shipper
+                            </a>
+                        }
+                        else
+                        {
+                            <div style="font-size:12px; color:#6aab6a; letter-spacing:0.03em">
+                                ✓ Bạn đã đánh giá đơn hàng này
+                            </div>
+                        }
                     </div>
                 }
             </div>
