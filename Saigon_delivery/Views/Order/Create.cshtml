@@ -3,18 +3,230 @@
     ViewData["Title"] = "Đặt hàng";
 }
 
-<div style="max-width:560px">
-    <h1 class="rl-page-title">Tạo đơn giao hàng</h1>
-    <p class="rl-page-sub">Điền thông tin bên dưới để đặt đơn</p>
+<style>
+    .loc-btn {
+        display: inline-block;
+        margin-top: 6px;
+        font-size: 11px;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: #2a78d6;
+        cursor: pointer;
+        background: none;
+        border: none;
+        padding: 0;
+        text-decoration: underline;
+    }
 
-    <form asp-action="Create" method="post">
+        .loc-btn:hover {
+            color: #185fa5;
+        }
+
+    /* Modal overlay */
+    .loc-modal {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,0.4);
+        z-index: 2000;
+        align-items: center;
+        justify-content: center;
+    }
+
+        .loc-modal.open {
+            display: flex;
+        }
+
+    .loc-modal-box {
+        background: #fff;
+        width: 100%;
+        max-width: 480px;
+        max-height: 90vh;
+        overflow-y: auto;
+        border-radius: 0;
+        box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+    }
+
+    .loc-modal-header {
+        padding: 14px 16px;
+        border-bottom: 0.5px solid #e0e0e0;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .loc-modal-title {
+        font-size: 13px;
+        font-weight: 500;
+        letter-spacing: 0.04em;
+    }
+
+    .loc-modal-close {
+        background: none;
+        border: none;
+        font-size: 20px;
+        cursor: pointer;
+        color: #aaa;
+        line-height: 1;
+    }
+
+        .loc-modal-close:hover {
+            color: #1a1a1a;
+        }
+
+    #picker-map {
+        height: 200px;
+        width: 100%;
+    }
+
+    .nearby-list {
+        padding: 0;
+    }
+
+    .nearby-item {
+        padding: 10px 16px;
+        border-bottom: 0.5px solid #f0f0f0;
+        cursor: pointer;
+        font-size: 13px;
+        color: #1a1a1a;
+        transition: background 0.1s;
+        display: flex;
+        gap: 10px;
+        align-items: flex-start;
+    }
+
+        .nearby-item:hover {
+            background: #fafafa;
+        }
+
+        .nearby-item:last-child {
+            border-bottom: none;
+        }
+
+    .nearby-icon {
+        color: #aaa;
+        font-size: 15px;
+        flex-shrink: 0;
+        margin-top: 1px;
+    }
+
+    .nearby-name {
+        font-size: 13px;
+        color: #1a1a1a;
+        line-height: 1.4;
+    }
+
+    .nearby-sub {
+        font-size: 11.5px;
+        color: #aaa;
+        margin-top: 2px;
+    }
+
+    .nearby-loading {
+        padding: 2rem;
+        text-align: center;
+        color: #aaa;
+        font-size: 13px;
+    }
+
+    .addr-selected {
+        border-color: #1baf7a !important;
+        background: #f4faf4;
+    }
+
+    .route-info {
+        background: #fafafa;
+        border: 0.5px solid #e8e8e8;
+        padding: 0.65rem 1rem;
+        font-size: 12.5px;
+        color: #555;
+        margin-top: 0.5rem;
+        display: none;
+    }
+
+        .route-info strong {
+            color: #1a1a1a;
+            font-weight: 500;
+        }
+
+    .autocomplete-wrap {
+        position: relative;
+    }
+
+    .autocomplete-list {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        z-index: 3000;
+        background: #fff;
+        border: 0.5px solid #e0e0e0;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+        max-height: 240px;
+        overflow-y: auto;
+    }
+
+    .autocomplete-item {
+        padding: 10px 14px;
+        cursor: pointer;
+        font-size: 13px;
+        border-bottom: 0.5px solid #f5f5f5;
+        display: flex;
+        gap: 10px;
+        align-items: flex-start;
+    }
+
+        .autocomplete-item:hover {
+            background: #fafafa;
+        }
+
+        .autocomplete-item:last-child {
+            border-bottom: none;
+        }
+
+    .ac-icon {
+        color: #aaa;
+        flex-shrink: 0;
+    }
+
+    .ac-main {
+        font-size: 13px;
+        color: #1a1a1a;
+        line-height: 1.4;
+    }
+
+    .ac-sub {
+        font-size: 11.5px;
+        color: #aaa;
+        margin-top: 1px;
+    }
+
+    .ac-loading {
+        padding: 12px 14px;
+        font-size: 12px;
+        color: #aaa;
+        text-align: center;
+    }
+</style>
+
+<div style="max-width:560px">
+    <a asp-action="Index"
+       style="font-size:11px;letter-spacing:0.06em;text-transform:uppercase;text-decoration:underline;color:#888">
+        ← Quay lại
+    </a>
+
+    <h1 class="rl-page-title" style="margin-top:1rem">Tạo đơn giao hàng</h1>
+    <p class="rl-page-sub">Chọn địa chỉ trên bản đồ hoặc nhập thủ công</p>
+
+    <form asp-action="Create" method="post" id="orderForm">
         <div asp-validation-summary="ModelOnly" class="rl-field-error" style="margin-bottom:1rem"></div>
 
-        <p style="font-size:11px; letter-spacing:0.08em; text-transform:uppercase; color:#aaa; margin-bottom:0.75rem">
+        <!-- Thông tin người nhận -->
+        <p style="font-size:11px;letter-spacing:0.08em;text-transform:uppercase;color:#aaa;margin-bottom:0.75rem">
             Thông tin người nhận
         </p>
 
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem">
             <div class="rl-field">
                 <label asp-for="ReceiverName" class="rl-label">Tên người nhận</label>
                 <input asp-for="ReceiverName" class="rl-input" placeholder="Nguyễn Văn A" />
@@ -28,54 +240,325 @@
         </div>
 
         <hr class="rl-divider" />
-        <p style="font-size:11px; letter-spacing:0.08em; text-transform:uppercase; color:#aaa; margin-bottom:0.75rem">
+
+        <!-- Địa chỉ -->
+        <p style="font-size:11px;letter-spacing:0.08em;text-transform:uppercase;color:#aaa;margin-bottom:0.75rem">
             Thông tin vận chuyển
         </p>
 
         <div class="rl-field">
             <label asp-for="PickupAddress" class="rl-label">Địa chỉ lấy hàng</label>
-            <input asp-for="PickupAddress" class="rl-input" placeholder="Số nhà, tên đường, quận..." />
+            <div class="autocomplete-wrap">
+                <input asp-for="PickupAddress" class="rl-input" id="pickupInput"
+                       placeholder="Tìm địa chỉ hoặc dùng GPS bên dưới"
+                       autocomplete="off" />
+                <div class="autocomplete-list" id="pickupSuggest" style="display:none"></div>
+            </div>
             <span asp-validation-for="PickupAddress" class="rl-field-error"></span>
+            <button type="button" class="loc-btn" onclick="openPicker('pickup')">
+                📍 Dùng vị trí hiện tại
+            </button>
+            <input type="hidden" id="pickupLat" />
+            <input type="hidden" id="pickupLng" />
         </div>
 
         <div class="rl-field">
             <label asp-for="DeliveryAddress" class="rl-label">Địa chỉ giao hàng</label>
-            <input asp-for="DeliveryAddress" class="rl-input" placeholder="Số nhà, tên đường, quận..." />
+            <div class="autocomplete-wrap">
+                <input asp-for="DeliveryAddress" class="rl-input" id="deliveryInput"
+                       placeholder="Tìm địa chỉ hoặc dùng GPS bên dưới"
+                       autocomplete="off" />
+                <div class="autocomplete-list" id="deliverySuggest" style="display:none"></div>
+            </div>
             <span asp-validation-for="DeliveryAddress" class="rl-field-error"></span>
+            <button type="button" class="loc-btn" onclick="openPicker('delivery')">
+                📍 Dùng vị trí hiện tại
+            </button>
+            <input type="hidden" id="deliveryLat" />
+            <input type="hidden" id="deliveryLng" />
         </div>
 
-        <div class="rl-field" style="max-width:200px">
-            <label asp-for="Distance" class="rl-label">Khoảng cách ước tính (km)</label>
-            <input asp-for="Distance" class="rl-input" id="distanceInput"
-                   placeholder="0.0" step="0.1" min="0.1" max="50" />
-            <span asp-validation-for="Distance" class="rl-field-error"></span>
+        <!-- Khoảng cách và phí ship tự động -->
+        <input type="hidden" asp-for="Distance" id="distanceInput" />
+        <div class="route-info" id="routeInfo">
+            Khoảng cách: <strong id="distDisplay">--</strong> km
+            &nbsp;·&nbsp;
+            Phí ship: <strong id="feeDisplay">--</strong>
         </div>
+        <span asp-validation-for="Distance" class="rl-field-error"></span>
 
-        <div class="rl-fee-box" id="feeBox" style="display:none; max-width:280px">
-            Phí ship ước tính: <strong id="feeDisplay">--</strong>
+        <div id="sameAddrError" class="rl-field-error" style="display:none;margin-top:0.5rem">
+            Địa chỉ lấy hàng và giao hàng không được trùng nhau
         </div>
 
         <div style="margin-top:2rem">
-            <button type="submit" class="rl-btn" style="max-width:220px">Xác nhận đặt hàng</button>
+            <button type="submit" class="rl-btn" style="max-width:220px">
+                Xác nhận đặt hàng
+            </button>
         </div>
     </form>
 </div>
 
+<!-- Modal chọn địa chỉ -->
+<div class="loc-modal" id="locModal">
+    <div class="loc-modal-box">
+        <div class="loc-modal-header">
+            <span class="loc-modal-title" id="modalTitle">Chọn địa chỉ</span>
+            <button class="loc-modal-close" onclick="closeModal()">×</button>
+        </div>
+        <div id="picker-map"></div>
+        <div class="nearby-list" id="nearbyList">
+            <div class="nearby-loading">Đang xác định vị trí GPS...</div>
+        </div>
+    </div>
+</div>
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
-        const input = document.getElementById('distanceInput');
-        const feeBox = document.getElementById('feeBox');
-        const feeDisplay = document.getElementById('feeDisplay');
-        input.addEventListener('input', function () {
-            const val = parseFloat(this.value);
-            if (!val || val <= 0) { feeBox.style.display = 'none'; return; }
-            fetch(`/Order/GetShipFee?distance=${val}`)
-                .then(r => r.json())
-                .then(data => {
-                    feeDisplay.textContent = data.feeFormatted;
-                    feeBox.style.display = 'block';
-                });
+        let pickerMap = null, pickerMarker = null;
+        let currentTarget = null, gpsCoords = null;
+        let searchTimers = {};
+
+        // Format địa chỉ cụ thể: số nhà + đường + quận/huyện + tỉnh
+        function formatAddress(addr) {
+          const a = addr.address || {};
+          const parts = [];
+          if (a.house_number) parts.push(a.house_number);
+          if (a.road || a.pedestrian || a.footway) parts.push(a.road || a.pedestrian || a.footway);
+          if (a.suburb || a.quarter || a.neighbourhood) parts.push(a.suburb || a.quarter || a.neighbourhood);
+          if (a.city_district || a.district) parts.push(a.city_district || a.district);
+          if (a.city || a.town || a.county) parts.push(a.city || a.town || a.county);
+          return parts.length >= 2 ? parts.join(', ') : addr.display_name?.split(',').slice(0, 4).join(',').trim();
+        }
+
+        // Haversine fallback
+        function haversine(lat1, lon1, lat2, lon2) {
+          const R = 6371, dLat = (lat2-lat1)*Math.PI/180, dLon = (lon2-lon1)*Math.PI/180;
+          const a = Math.sin(dLat/2)**2 + Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLon/2)**2;
+          return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+        }
+
+        function formatFee(distKm) {
+          const fee = distKm <= 3 ? 15000 : 15000 + Math.ceil(distKm - 3) * 5000;
+          return { dist: distKm.toFixed(1), fee: fee.toLocaleString('vi-VN') + 'đ' };
+        }
+
+        function updateDistance() {
+          const pLat = parseFloat(document.getElementById('pickupLat').value);
+          const pLng = parseFloat(document.getElementById('pickupLng').value);
+          const dLat = parseFloat(document.getElementById('deliveryLat').value);
+          const dLng = parseFloat(document.getElementById('deliveryLng').value);
+          if (!pLat || !dLat) return;
+
+          if (Math.abs(pLat-dLat) < 0.0001 && Math.abs(pLng-dLng) < 0.0001) {
+            document.getElementById('sameAddrError').style.display = 'block';
+            document.getElementById('distanceInput').value = '';
+            document.getElementById('routeInfo').style.display = 'none';
+            return;
+          }
+          document.getElementById('sameAddrError').style.display = 'none';
+
+          fetch(`https://router.project-osrm.org/route/v1/driving/${pLng},${pLat};${dLng},${dLat}?overview=false`)
+            .then(r => r.json())
+            .then(data => {
+              const distKm = data.routes?.[0] ? data.routes[0].distance / 1000 : haversine(pLat,pLng,dLat,dLng);
+              const { dist, fee } = formatFee(distKm);
+              document.getElementById('distanceInput').value = distKm.toFixed(2);
+              document.getElementById('distDisplay').textContent = dist;
+              document.getElementById('feeDisplay').textContent = fee;
+              document.getElementById('routeInfo').style.display = 'block';
+            })
+            .catch(() => {
+              const distKm = haversine(pLat,pLng,dLat,dLng);
+              const { dist, fee } = formatFee(distKm);
+              document.getElementById('distanceInput').value = distKm.toFixed(2);
+              document.getElementById('distDisplay').textContent = dist;
+              document.getElementById('feeDisplay').textContent = fee;
+              document.getElementById('routeInfo').style.display = 'block';
+            });
+        }
+
+        // Autocomplete search khi gõ
+        function setupAutocomplete(inputId, suggestId, latId, lngId) {
+          const input = document.getElementById(inputId);
+          const suggest = document.getElementById(suggestId);
+
+          input.addEventListener('input', function() {
+            const q = this.value.trim();
+            clearTimeout(searchTimers[inputId]);
+            if (q.length < 3) { suggest.style.display = 'none'; return; }
+
+            suggest.style.display = 'block';
+            suggest.innerHTML = '<div class="ac-loading">Đang tìm...</div>';
+
+            searchTimers[inputId] = setTimeout(async () => {
+              try {
+                const center = gpsCoords ? `&viewbox=${gpsCoords.lon-0.1},${gpsCoords.lat+0.1},${gpsCoords.lon+0.1},${gpsCoords.lat-0.1}&bounded=0` : '';
+                const res = await fetch(
+                  `https://nominatim.openstreetmap.org/search?format=json&addressdetails=1&limit=5&countrycodes=vn&q=${encodeURIComponent(q + ' Hồ Chí Minh')}${center}&accept-language=vi`
+                );
+                const data = await res.json();
+                if (!data.length) { suggest.innerHTML = '<div class="ac-loading">Không tìm thấy địa chỉ</div>'; return; }
+
+                suggest.innerHTML = data.map(item => {
+                  const formatted = formatAddress(item);
+                  const sub = item.display_name?.split(',').slice(1, 4).join(',').trim();
+                  return `<div class="autocomplete-item" onclick="pickSuggest('${inputId}','${latId}','${lngId}','${formatted.replace(/'/g,"\\'")}',${item.lat},${item.lon},'${suggestId}')">
+                    <span class="ac-icon">📍</span>
+                    <div>
+                      <div class="ac-main">${formatted}</div>
+                      <div class="ac-sub">${sub}</div>
+                    </div>
+                  </div>`;
+                }).join('');
+              } catch {
+                suggest.innerHTML = '<div class="ac-loading">Lỗi tìm kiếm</div>';
+              }
+            }, 600);
+          });
+
+          // Đóng khi click ngoài
+          document.addEventListener('click', e => {
+            if (!input.contains(e.target) && !suggest.contains(e.target))
+              suggest.style.display = 'none';
+          });
+        }
+
+        function pickSuggest(inputId, latId, lngId, addr, lat, lon, suggestId) {
+          document.getElementById(inputId).value = addr;
+          document.getElementById(inputId).classList.add('addr-selected');
+          document.getElementById(latId).value = lat;
+          document.getElementById(lngId).value = lon;
+          document.getElementById(suggestId).style.display = 'none';
+          updateDistance();
+        }
+
+        // Khởi tạo autocomplete cho 2 ô
+        setupAutocomplete('pickupInput',   'pickupSuggest',   'pickupLat',   'pickupLng');
+        setupAutocomplete('deliveryInput', 'deliverySuggest', 'deliveryLat', 'deliveryLng');
+
+        // Lấy GPS ngầm khi load trang để cải thiện kết quả search
+        if (navigator.geolocation) {
+          navigator.geolocation.getCurrentPosition(pos => {
+            gpsCoords = { lat: pos.coords.latitude, lon: pos.coords.longitude };
+          }, null, { enableHighAccuracy: true, timeout: 10000 });
+        }
+
+        // ===== GPS PICKER MODAL =====
+        function openPicker(target) {
+          currentTarget = target;
+          document.getElementById('modalTitle').textContent =
+            target === 'pickup' ? 'Chọn địa chỉ lấy hàng' : 'Chọn địa chỉ giao hàng';
+          document.getElementById('locModal').classList.add('open');
+
+          setTimeout(() => {
+            if (!pickerMap) {
+              pickerMap = L.map('picker-map').setView([10.7769, 106.7009], 14);
+              L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+                { maxZoom: 19, attribution: '© OpenStreetMap' }).addTo(pickerMap);
+              pickerMap.on('click', async e => {
+                movePickerMarker(e.latlng.lat, e.latlng.lng);
+                await loadNearby(e.latlng.lat, e.latlng.lng);
+              });
+            }
+            document.getElementById('nearbyList').innerHTML = '<div class="nearby-loading">Đang xác định vị trí GPS...</div>';
+            if (gpsCoords) {
+              pickerMap.setView([gpsCoords.lat, gpsCoords.lon], 16);
+              movePickerMarker(gpsCoords.lat, gpsCoords.lon);
+              loadNearby(gpsCoords.lat, gpsCoords.lon);
+            } else if (navigator.geolocation) {
+              navigator.geolocation.getCurrentPosition(pos => {
+                gpsCoords = { lat: pos.coords.latitude, lon: pos.coords.longitude };
+                pickerMap.setView([gpsCoords.lat, gpsCoords.lon], 16);
+                movePickerMarker(gpsCoords.lat, gpsCoords.lon);
+                loadNearby(gpsCoords.lat, gpsCoords.lon);
+              }, () => {
+                document.getElementById('nearbyList').innerHTML =
+                  '<div class="nearby-loading">Không được cấp quyền GPS. Click trên bản đồ để chọn.</div>';
+              }, { enableHighAccuracy: true, timeout: 10000 });
+            }
+            pickerMap.invalidateSize();
+          }, 100);
+        }
+
+        function movePickerMarker(lat, lng) {
+          if (pickerMarker) pickerMarker.setLatLng([lat, lng]);
+          else {
+            pickerMarker = L.marker([lat, lng], { draggable: true }).addTo(pickerMap);
+            pickerMarker.on('dragend', e => loadNearby(e.target.getLatLng().lat, e.target.getLatLng().lng));
+          }
+        }
+
+        async function loadNearby(lat, lon) {
+          const list = document.getElementById('nearbyList');
+          list.innerHTML = '<div class="nearby-loading">Đang tải địa chỉ...</div>';
+          try {
+            const res = await fetch(
+              `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json&addressdetails=1&zoom=18&accept-language=vi`
+            );
+            const data = await res.json();
+            const main = formatAddress(data);
+
+            // Tìm thêm địa chỉ lân cận
+            const road = data.address?.road || '';
+            const suburb = data.address?.suburb || data.address?.quarter || '';
+            const searchQ = [road, suburb, 'Hồ Chí Minh'].filter(Boolean).join(', ');
+
+            let extras = [];
+            if (road) {
+              await new Promise(r => setTimeout(r, 800));
+              const sRes = await fetch(
+                `https://nominatim.openstreetmap.org/search?format=json&addressdetails=1&limit=5&countrycodes=vn&q=${encodeURIComponent(searchQ)}&accept-language=vi`
+              );
+              const sData = await sRes.json();
+              extras = sData
+                .filter(i => i.display_name !== data.display_name)
+                .map(i => ({ name: formatAddress(i), lat: parseFloat(i.lat), lon: parseFloat(i.lon) }));
+            }
+
+            const all = [{ name: main, lat: parseFloat(data.lat), lon: parseFloat(data.lon) }, ...extras];
+            list.innerHTML = all.map((r, i) => `
+              <div class="nearby-item" onclick="selectAddress('${r.name.replace(/'/g,"\\'")}',${r.lat},${r.lon})">
+                <span class="nearby-icon">${i===0?'📍':'🏠'}</span>
+                <div>
+                  <div class="nearby-name">${r.name}</div>
+                </div>
+              </div>`).join('');
+          } catch {
+            list.innerHTML = '<div class="nearby-loading">Không tải được địa chỉ. Click vị trí khác trên bản đồ.</div>';
+          }
+        }
+
+        function selectAddress(addr, lat, lon) {
+          const inputId  = currentTarget === 'pickup' ? 'pickupInput'   : 'deliveryInput';
+          const latId    = currentTarget === 'pickup' ? 'pickupLat'     : 'deliveryLat';
+          const lngId    = currentTarget === 'pickup' ? 'pickupLng'     : 'deliveryLng';
+          document.getElementById(inputId).value = addr;
+          document.getElementById(inputId).classList.add('addr-selected');
+          document.getElementById(latId).value = lat;
+          document.getElementById(lngId).value = lon;
+          closeModal();
+          updateDistance();
+        }
+
+        function closeModal() { document.getElementById('locModal').classList.remove('open'); }
+        document.getElementById('locModal').addEventListener('click', e => { if (e.target === document.getElementById('locModal')) closeModal(); });
+
+        // Submit validation
+        document.getElementById('orderForm').addEventListener('submit', function(e) {
+          const pLat = document.getElementById('pickupLat').value;
+          const dLat = document.getElementById('deliveryLat').value;
+          const dist  = document.getElementById('distanceInput').value;
+          if (!pLat || !dLat || !dist) {
+            e.preventDefault();
+            const errEl = document.querySelector('[data-valmsg-for="Distance"]');
+            if (errEl) errEl.textContent = 'Vui lòng chọn địa chỉ từ gợi ý hoặc dùng nút "Vị trí hiện tại" để tính khoảng cách tự động.';
+            window.scrollTo({ top: 300, behavior: 'smooth' });
+          }
         });
     </script>
 }

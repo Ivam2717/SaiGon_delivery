@@ -34,8 +34,6 @@ namespace Saigon_delivery.Controllers
                 TempData["Error"] = "Không thể đánh giá đơn hàng này.";
                 return RedirectToAction("Index", "Order");
             }
-
-            // Kiểm tra đã đánh giá chưa
             var existed = await _context.ShipperRatings
                 .AnyAsync(r => r.OrderId == orderId);
             if (existed)

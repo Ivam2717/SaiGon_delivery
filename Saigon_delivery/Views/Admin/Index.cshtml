@@ -1,0 +1,39 @@
+﻿@model Saigon_delivery.Models.ViewModels.AdminDashboardViewModel
+@{
+    ViewData["Title"] = "Dashboard";
+}
+
+<h1 class="rl-page-title">Dashboard</h1>
+<p class="rl-page-sub">Tổng quan hệ thống giao hàng</p>
+
+<div style="display:grid; grid-template-columns:repeat(4,1fr); gap:1.25rem; margin-bottom:2.5rem">
+    <div class="rl-card">
+        <div class="rl-card-body" style="text-align:center">
+            <div style="font-size:11px; letter-spacing:0.08em; text-transform:uppercase; color:#aaa; margin-bottom:0.5rem">Tổng đơn hàng</div>
+            <div style="font-family:'EB Garamond',serif; font-size:36px; font-weight:400">@Model.TotalOrders</div>
+        </div>
+    </div>
+    <div class="rl-card">
+        <div class="rl-card-body" style="text-align:center">
+            <div style="font-size:11px; letter-spacing:0.08em; text-transform:uppercase; color:#aaa; margin-bottom:0.5rem">Doanh thu</div>
+            <div style="font-family:'EB Garamond',serif; font-size:28px; font-weight:400">@Model.TotalRevenue.ToString("N0")đ</div>
+        </div>
+    </div>
+    <div class="rl-card">
+        <div class="rl-card-body" style="text-align:center">
+            <div style="font-size:11px; letter-spacing:0.08em; text-transform:uppercase; color:#aaa; margin-bottom:0.5rem">Chờ xử lý</div>
+            <div style="font-family:'EB Garamond',serif; font-size:36px; font-weight:400; color:#c8a84b">@Model.PendingOrders</div>
+        </div>
+    </div>
+    <div class="rl-card">
+        <div class="rl-card-body" style="text-align:center">
+            <div style="font-size:11px; letter-spacing:0.08em; text-transform:uppercase; color:#aaa; margin-bottom:0.5rem">Hoàn thành</div>
+            <div style="font-family:'EB Garamond',serif; font-size:36px; font-weight:400; color:#6aab6a">@Model.CompletedOrders</div>
+        </div>
+    </div>
+</div>
+
+<div style="display:flex; gap:1rem; flex-wrap:wrap">
+    <a asp-action="Orders" class="rl-btn rl-btn-outline rl-btn-sm">Quản lý đơn hàng</a>
+    <a asp-action="Report" class="rl-btn rl-btn-outline rl-btn-sm">Xem báo cáo</a>
+</div>

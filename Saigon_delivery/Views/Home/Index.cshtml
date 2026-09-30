@@ -1,8 +1,121 @@
 ﻿@{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "Trang chủ";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<style>
+    .rl-main {
+        padding: 0 !important;
+        overflow: hidden;
+    }
+
+    #main-map {
+        height: calc(100vh - 52px);
+        width: 100%;
+    }
+
+    .fab-order {
+        position: fixed;
+        bottom: 2rem;
+        right: 2rem;
+        z-index: 1000;
+        background: #1a1a1a;
+        color: #fff;
+        padding: 0.75rem 1.75rem;
+        font-size: 11px;
+        font-family: 'Libre Franklin', sans-serif;
+        font-weight: 400;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        text-decoration: none;
+        border-radius: 0;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.28);
+        transition: background 0.2s;
+    }
+
+        .fab-order:hover {
+            background: #333;
+            color: #fff;
+            text-decoration: none;
+        }
+
+    .map-info {
+        position: fixed;
+        top: 68px;
+        left: 1rem;
+        z-index: 1000;
+        background: rgba(255,255,255,0.96);
+        border: 0.5px solid #e0e0e0;
+        padding: 0.65rem 1rem;
+        min-width: 220px;
+        box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+        font-size: 13px;
+    }
+
+    .map-info-label {
+        font-size: 10px;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: #aaa;
+        margin-bottom: 3px;
+    }
+
+    .map-info-value {
+        font-size: 13px;
+        color: #1a1a1a;
+        line-height: 1.4;
+    }
+</style>
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+<div id="main-map"></div>
+
+<div class="map-info" id="locationInfo" style="display:none">
+    <div class="map-info-label">Vị trí của bạn</div>
+    <div class="map-info-value" id="locationText">Đang xác định...</div>
 </div>
+
+<a asp-controller="Order" asp-action="Create" class="fab-order">+ Đặt hàng mới</a>
+
+@section Scripts {
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        const map = L.map('main-map').setView([10.7769, 106.7009], 13);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          attribution: '© <a href="https://openstreetmap.org">OpenStreetMap</a>',
+          maxZoom: 19
+        }).addTo(map);
+
+        const infoPanel = document.getElementById('locationInfo');
+        const locationText = document.getElementById('locationText');
+
+        if (navigator.geolocation) {
+          navigator.geolocation.getCurrentPosition(async pos => {
+            const { latitude: lat, longitude: lon, accuracy } = pos.coords;
+            map.setView([lat, lon], 15);
+
+            const userIcon = L.divIcon({
+              className: '',
+              html: `<div style="width:14px;height:14px;background:#2a78d6;border:3px solid #fff;border-radius:50%;box-shadow:0 2px 8px rgba(42,120,214,0.5)"></div>`,
+              iconSize: [14,14], iconAnchor: [7,7]
+            });
+            L.marker([lat, lon], { icon: userIcon }).addTo(map).bindPopup('<b>Vị trí của bạn</b>');
+            L.circle([lat, lon], { radius: accuracy, color: '#2a78d6', fillColor: '#2a78d6', fillOpacity: 0.05, weight: 1 }).addTo(map);
+
+            infoPanel.style.display = 'block';
+            locationText.textContent = 'Đang lấy địa chỉ...';
+
+            try {
+              const res = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json&accept-language=vi`);
+              const data = await res.json();
+              locationText.textContent = data.display_name?.split(',').slice(0,3).join(',') || `${lat.toFixed(5)}, ${lon.toFixed(5)}`;
+            } catch {
+              locationText.textContent = `${lat.toFixed(5)}, ${lon.toFixed(5)}`;
+            }
+          }, () => {
+            infoPanel.style.display = 'block';
+            locationText.textContent = 'Không thể xác định vị trí';
+          }, { enableHighAccuracy: true, timeout: 12000 });
+        }
+    </script>
+}

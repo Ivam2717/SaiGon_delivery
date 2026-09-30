@@ -1,0 +1,90 @@
+﻿@model IEnumerable<Saigon_delivery.Models.Order>
+@{
+    ViewData["Title"] = "Quản lý đơn hàng";
+    var shippers = ViewBag.Shippers as List<Saigon_delivery.Models.User>
+                   ?? new List<Saigon_delivery.Models.User>();
+    var currentStatus = ViewBag.CurrentStatus as string;
+}
+
+<h1 class="rl-page-title">Quản lý đơn hàng</h1>
+
+<div style="display:flex; gap:0.5rem; margin-bottom:1.5rem; flex-wrap:wrap">
+    <a asp-action="Orders" class="rl-badge @(currentStatus == null ? "rl-badge-shipping" : "rl-badge-pending")"
+       style="padding:4px 12px; text-decoration:none">Tất cả</a>
+    <a asp-action="Orders" asp-route-status="Pending"
+       class="rl-badge @(currentStatus == "Pending" ? "rl-badge-shipping" : "rl-badge-pending")"
+       style="padding:4px 12px; text-decoration:none">Chờ nhận</a>
+    <a asp-action="Orders" asp-route-status="Shipping"
+       class="rl-badge @(currentStatus == "Shipping" ? "rl-badge-shipping" : "rl-badge-pending")"
+       style="padding:4px 12px; text-decoration:none">Đang giao</a>
+    <a asp-action="Orders" asp-route-status="Completed"
+       class="rl-badge @(currentStatus == "Completed" ? "rl-badge-shipping" : "rl-badge-pending")"
+       style="padding:4px 12px; text-decoration:none">Hoàn thành</a>
+</div>
+
+<div style="overflow-x:auto">
+    <table class="rl-table">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Khách hàng</th>
+                <th>Địa chỉ giao</th>
+                <th>Phí ship</th>
+                <th>Trạng thái</th>
+                <th>Ngày đặt</th>
+                <th>Gán shipper</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var o in Model)
+            {
+                var (badgeClass, label) = o.Status switch
+                {
+                    "Pending"   => ("rl-badge-pending",  "Chờ nhận"),
+                    "Shipping"  => ("rl-badge-shipping", "Đang giao"),
+                    "Completed" => ("rl-badge-done",     "Hoàn thành"),
+                    _           => ("rl-badge-pending",  o.Status)
+                };
+                <tr>
+                    <td style="color:#aaa">#@o.Id</td>
+                    <td>
+                        <div>@o.Customer?.FullName</div>
+                        <div style="color:#aaa; font-size:11.5px">@o.Customer?.Phone</div>
+                    </td>
+                    <td style="font-size:12px; color:#555; max-width:180px">@o.DeliveryAddress</td>
+                    <td style="font-weight:500">@o.ShipFee.ToString("N0")đ</td>
+                    <td><span class="rl-badge @badgeClass">@label</span></td>
+                    <td style="color:#aaa; font-size:12px">@o.CreatedAt.ToLocalTime().ToString("dd/MM/yy HH:mm")</td>
+                    <td>
+                        @if (o.Status != "Completed")
+                        {
+                            <form asp-action="AssignShipper" method="post"
+                                  style="display:flex; gap:0.5rem; align-items:center">
+                                <input type="hidden" name="orderId" value="@o.Id" />
+                                <select name="shipperId" class="rl-input" style="width:140px; padding:0.3rem 0.5rem">
+                                    @foreach (var s in shippers)
+                                    {
+                                        if (o.ShipperId == s.Id)
+                                        {
+                                            <option value="@s.Id" selected>@s.FullName</option>
+                                        }
+                                        else
+                                        {
+                                            <option value="@s.Id">@s.FullName</option>
+                                        }
+                                    }
+                                </select>
+                                <button type="submit" class="rl-btn rl-btn-sm"
+                                        style="white-space:nowrap">Gán</button>
+                            </form>
+                        }
+                        else
+                        {
+                            <span style="font-size:12px; color:#aaa">@o.Shipper?.FullName</span>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

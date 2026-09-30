@@ -26,29 +26,16 @@ if (!app.Environment.IsDevelopment())
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<SaigonDeliveryContext>();
-
-    var pendingUsers = db.Users.Where(u => u.PasswordHash == "pending_hash").ToList();
-    if (pendingUsers.Any())
+    var pending = db.Users.Where(u => u.PasswordHash == "pending_hash").ToList();
+    if (pending.Any())
     {
-        var passwordMap = new Dictionary<string, string>
+        foreach (var user in pending)
         {
-            { "admin@saigon.vn",      "Admin@123" },
-            { "khachhang1@saigon.vn", "Customer@123" },
-            { "khachhang2@saigon.vn", "Customer@123" },
-            { "shipper1@saigon.vn",   "Shipper@123" },
-            { "shipper2@saigon.vn",   "Shipper@123" },
-        };
-
-        foreach (var user in pendingUsers)
-        {
-            if (passwordMap.TryGetValue(user.Email, out var rawPassword))
-            {
-                var bytes = System.Security.Cryptography.SHA256.HashData(
-                    System.Text.Encoding.UTF8.GetBytes(rawPassword));
-                user.PasswordHash = Convert.ToHexString(bytes).ToLower();
-            }
+            var raw = user.Role == "Admin" ? "Admin@123" : "User@123";
+            var bytes = System.Security.Cryptography.SHA256.HashData(
+                System.Text.Encoding.UTF8.GetBytes(raw));
+            user.PasswordHash = Convert.ToHexString(bytes).ToLower();
         }
-
         db.SaveChanges();
     }
 }

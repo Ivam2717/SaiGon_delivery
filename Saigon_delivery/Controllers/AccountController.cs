@@ -46,7 +46,7 @@ namespace Saigon_delivery.Controllers
             {
                 "Admin" => RedirectToAction("Index", "Admin"),
                 "Shipper" => RedirectToAction("Index", "Shipper"),
-                _ => RedirectToAction("Index", "Order")
+                _ => RedirectToAction("Index", "Home")
             };
         }
         // GET: /Account/Register

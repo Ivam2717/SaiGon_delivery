@@ -56,8 +56,9 @@
         <div class="rl-mobile-menu" id="mobileMenu">
             @if (User.IsInRole("Customer"))
             {
-                <a asp-controller="Order" asp-action="Create">Đặt hàng</a>
-                <a asp-controller="Order" asp-action="Index">Đơn của tôi</a>
+                <li><a asp-controller="Home" asp-action="Index">Trang chủ</a></li>
+                <li><a asp-controller="Order" asp-action="Create">Đặt hàng</a></li>
+                <li><a asp-controller="Order" asp-action="Index">Đơn của tôi</a></li>
             }
             @if (User.IsInRole("Shipper"))
             {
