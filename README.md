@@ -1,7 +1,6 @@
 # HƯỚNG DẪN CÀI ĐẶT VÀ CHẠY ĐỒ ÁN
 
 **Đề tài:** Xây dựng hệ thống điều phối và giám sát đơn hàng giao nhận nội thành sử dụng công nghệ ASP.NET Core MVC
-**Sinh viên:** Trần Nhật Nam — MSSV: 2400005124
 
 ---
 
