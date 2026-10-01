@@ -29,26 +29,39 @@ git clone https://github.com/Ivam2717/SaiGon_delivery.git
 
 ---
 
-## BƯỚC 2 — TẠO DATABASE
+## BƯỚC 2 — TẠO DATABASE TỪ SCRIPT SQL
 
 ### 2.1 Mở SSMS và kết nối SQL Server
-- Mở **SQL Server Management Studio**
-- Server name: `YOUR_PC_NAME\SQLEXPRESS` (thay bằng tên máy thật)
+- Mở **SQL Server Management Studio (SSMS)**
+- Ô **Server name:** nhập `YOUR_PC_NAME\SQLEXPRESS`  
+  *(Không biết tên máy: mở Command Prompt → gõ `hostname` → Enter)*
 - Authentication: **Windows Authentication**
 - Bấm **Connect**
 
-> **Lưu ý:** Nếu không biết tên server, mở SSMS lên và xem tên hiển thị trong ô "Server name" ở màn hình kết nối.
+### 2.2 Mở file script SQL
+- Trong SSMS, vào menu **File** → **Open** → **File**
+- Tìm đến thư mục `Database/` trong source code vừa clone
+- Chọn file **`SaigonDelivery_Full.sql`**
+- File này chứa đầy đủ: lệnh tạo database, tạo bảng, ràng buộc và toàn bộ dữ liệu mẫu
 
-### 2.2 Chạy script tạo bảng
-- Trong SSMS: **File** → **Open** → **File**
-- Chọn file `SaigonDelivery_Schema.sql` (trong thư mục `/Database`)
-- Bấm **Execute** (F5)
-- Kết quả: Database `SaigonDeliveryDB` được tạo với 3 bảng Users, Orders, ShipperRatings
+### 2.3 Chạy script
+- Nhấn **F5** hoặc bấm nút **Execute** trên thanh toolbar
+- Chờ đến khi thanh trạng thái hiện **"Query executed successfully"**
 
-### 2.3 Chạy script dữ liệu mẫu
-- Mở tiếp file `SeedData_Realistic_v2.sql`
-- Bấm **Execute** (F5)
-- Kết quả: 121 người dùng và 1.000 đơn hàng được nạp vào database
+### 2.4 Kiểm tra kết quả
+Chạy câu lệnh sau để xác nhận dữ liệu đã được nạp đúng:
+
+```sql
+USE SaigonDeliveryDB;
+SELECT Role, COUNT(*) AS SoLuong FROM Users GROUP BY Role;
+SELECT COUNT(*) AS TongDon FROM Orders;
+SELECT COUNT(*) AS TongDanhGia FROM ShipperRatings;
+```
+
+Kết quả mong đợi:
+- Admin: 1, Customer: 100, Shipper: 20
+- Tổng đơn: 1000
+- Tổng đánh giá: ~448
 
 ---
 
